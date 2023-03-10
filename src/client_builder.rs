@@ -44,11 +44,14 @@ impl ClientBuilder {
                 if readonly {
                     format!("{}.readonly", auth_base_url)
                 } else {
-                    auth_base_url.to_string()
+                    auth_base_url.to_owned()
                 }
             })
             .collect();
-        let sa_auth = ServiceAccountAuthenticator::from_service_account_key(sa_key, &scopes).await?;
+
+        let scopes_str: Vec<&str> = scopes.iter().map(String::as_str).collect();
+
+        let sa_auth = ServiceAccountAuthenticator::from_service_account_key(sa_key, &scopes_str).await?;
 
         let mut client = Client::from_authenticator(sa_auth);
         client.v2_base_url(self.v2_base_url.clone());
@@ -56,7 +59,7 @@ impl ClientBuilder {
     }
 
     pub async fn build_from_service_account_key_file(&self, sa_key_file: &str) -> Result<Client, BQError> {
-        let sa_auth = service_account_authenticator(&self.auth_base_urls, sa_key_file).await?;
+        let sa_auth = service_account_authenticator(&self.auth_base_as_str_urls(), sa_key_file).await?;
 
         let mut client = Client::from_authenticator(sa_auth);
         client.v2_base_url(self.v2_base_url.clone());
@@ -64,6 +67,7 @@ impl ClientBuilder {
     }
 
     pub async fn build_with_workload_identity(&self, readonly: bool) -> Result<Client, BQError> {
+        // TODO: 直す
         let scope = if readonly {
             format!("{BIG_QUERY_AUTH_URL}.readonly")
         } else {
@@ -82,7 +86,7 @@ impl ClientBuilder {
         secret: S,
         persistant_file_path: P,
     ) -> Result<Client, BQError> {
-        let auth = installed_flow_authenticator(secret, &self.auth_base_urls, persistant_file_path).await?;
+        let auth = installed_flow_authenticator(secret, &self.auth_base_as_str_urls(), persistant_file_path).await?;
 
         let mut client = Client::from_authenticator(auth);
         client.v2_base_url(self.v2_base_url.clone());
@@ -104,7 +108,7 @@ impl ClientBuilder {
     }
 
     pub async fn build_from_application_default_credentials(&self) -> Result<Client, BQError> {
-        let auth = application_default_credentials_authenticator(&self.auth_base_urls).await?;
+        let auth = application_default_credentials_authenticator(&self.auth_base_as_str_urls()).await?;
 
         let mut client = Client::from_authenticator(auth);
         client.v2_base_url(self.v2_base_url.clone());
@@ -115,11 +119,15 @@ impl ClientBuilder {
         &self,
         authorized_user_secret_path: P,
     ) -> Result<Client, BQError> {
-        let auth = authorized_user_authenticator(authorized_user_secret_path, &self.auth_base_urls).await?;
+        let auth = authorized_user_authenticator(authorized_user_secret_path, &self.auth_base_as_str_urls()).await?;
 
         let mut client = Client::from_authenticator(auth);
         client.v2_base_url(self.v2_base_url.clone());
         Ok(client)
+    }
+
+    pub fn auth_base_as_str_urls(&self) -> Vec<&str> {
+        self.auth_base_urls.iter().map(String::as_str).collect()
     }
 }
 
