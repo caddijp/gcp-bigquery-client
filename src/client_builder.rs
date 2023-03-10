@@ -49,9 +49,9 @@ impl ClientBuilder {
             })
             .collect();
 
-        let scopes_str: Vec<&str> = scopes.iter().map(String::as_str).collect();
+        let scopes_as_str: Vec<&str> = scopes.iter().map(String::as_str).collect();
 
-        let sa_auth = ServiceAccountAuthenticator::from_service_account_key(sa_key, &scopes_str).await?;
+        let sa_auth = ServiceAccountAuthenticator::from_service_account_key(sa_key, &scopes_as_str).await?;
 
         let mut client = Client::from_authenticator(sa_auth);
         client.v2_base_url(self.v2_base_url.clone());
@@ -68,14 +68,20 @@ impl ClientBuilder {
     }
 
     pub async fn build_with_workload_identity(&self, readonly: bool) -> Result<Client, BQError> {
-        // TODO: 直す
-        let scope = if readonly {
-            format!("{BIG_QUERY_AUTH_URL}.readonly")
-        } else {
-            BIG_QUERY_AUTH_URL.to_string()
-        };
+        let scopes: Vec<String> = vec![BIG_QUERY_AUTH_URL, DRIVE_AUTH_URL]
+            .iter()
+            .map(|auth_base_url| {
+                if readonly {
+                    format!("{auth_base_url}.readonly")
+                } else {
+                    auth_base_url.to_string()
+                }
+            })
+            .collect();
 
-        let sa_auth = ServiceAccountAuthenticator::with_workload_identity(&[&scope]).await?;
+        let scopes_as_str: Vec<&str> = scopes.iter().map(String::as_str).collect();
+
+        let sa_auth = ServiceAccountAuthenticator::with_workload_identity(&scopes_as_str).await?;
 
         let mut client = Client::from_authenticator(sa_auth);
         client.v2_base_url(self.v2_base_url.clone());
