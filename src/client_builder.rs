@@ -59,7 +59,8 @@ impl ClientBuilder {
     }
 
     pub async fn build_from_service_account_key_file(&self, sa_key_file: &str) -> Result<Client, BQError> {
-        let sa_auth = service_account_authenticator(&self.auth_base_as_str_urls(), sa_key_file).await?;
+        let scopes = self.auth_base_as_str_urls();
+        let sa_auth = service_account_authenticator(scopes, sa_key_file).await?;
 
         let mut client = Client::from_authenticator(sa_auth);
         client.v2_base_url(self.v2_base_url.clone());
