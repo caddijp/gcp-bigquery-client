@@ -53,6 +53,9 @@ pub enum BQError {
 
     #[error("Json serialization error (error: {0})")]
     SerializationError(#[from] serde_json::Error),
+
+    #[error("Timeout Error")]
+    TimeoutError,
 }
 
 #[derive(Debug, Deserialize)]
