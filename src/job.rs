@@ -69,7 +69,7 @@ impl JobApi {
 
         if let Some(job_complete) = query_response.job_complete {
             if !job_complete {
-                return Err(BQError::TimeOutError);
+                return Err(BQError::TimeoutError);
             }
         }
 
