@@ -1,4 +1,3 @@
-//! Manage BigQuery jobs.
 use std::sync::Arc;
 
 use async_stream::stream;
@@ -69,7 +68,7 @@ impl JobApi {
 
         if let Some(job_complete) = query_response.job_complete {
             if !job_complete {
-                return Err(BQError::TimeoutError);
+                return Err(BQError::UncompletedJob);
             }
         }
 
