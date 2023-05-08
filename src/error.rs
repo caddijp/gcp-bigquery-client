@@ -53,6 +53,9 @@ pub enum BQError {
 
     #[error("Json serialization error (error: {0})")]
     SerializationError(#[from] serde_json::Error),
+
+    #[error("Uncompleted job error(job is canceled, cause error or timeout")]
+    UncompletedJob,
 }
 
 #[derive(Debug, Deserialize)]
