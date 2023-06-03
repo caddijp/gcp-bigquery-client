@@ -63,12 +63,12 @@ impl DatasetApi {
             project_id = urlencode(&dataset.dataset_reference.project_id)
         );
 
-        let access_token = self.auth.access_token().await?;
+        // let access_token = self.auth.access_token().await?;
 
         let request = self
             .client
             .post(req_url.as_str())
-            .bearer_auth(access_token)
+            // .bearer_auth(access_token)
             .json(&dataset)
             .build()?;
 
