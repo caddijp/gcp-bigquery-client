@@ -1,0 +1,15 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gcp-bigquery-client
+  description: GCP BigQuery Client (Rust)
+  annotations:
+    github.com/project-slug: caddijp/gcp-bigquery-client
+    backstage.io/source-location: url:https://github.com/caddijp/gcp-bigquery-client
+  tags:
+    - touches-customer-data
+spec:
+  type: repository
+  lifecycle: production
+  owner: group:TODO-set-owner
